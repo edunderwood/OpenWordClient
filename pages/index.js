@@ -225,7 +225,7 @@ const Home = () => {
       <div className={styles.container}>
         <ServiceStatusComponent serviceId={serviceCode} parentCallback={handleServiceStatusCallback} />
         <LivestreamComponent socket={socket} parentCallback={handleLivestreamCallback} />
-        <PageHeaderComponent textLabel="DeBabel" sessionStatus={livestream} />
+        <PageHeaderComponent textLabel="OpenWord" sessionStatus={livestream} />
         {!translationRef.current &&
           <div className={styles.home}>
             <div className={styles.inputBox}>
