@@ -1,58 +1,118 @@
+/* Audio Component Styles */
+
 .audioButton {
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 20px;
+    padding: 20px;
+    margin: 20px 0;
 }
 
-.switch {
-    width: 60px;
-    height: 34px;
-    position: relative;
-    display: inline-block;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
+.audioToggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 34px;
+    padding: 15px 25px;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    user-select: none;
 }
 
-.slider::before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 50%;
+.audioToggle:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
 }
 
-input:checked+.slider {
-    background-color: #2196f3;
+.audioToggle:active {
+    transform: scale(0.95);
 }
 
-input:focus+.slider {
-    box-shadow: 0 0 1px #2196f3;
+/* Icon styling */
+.audioToggle svg {
+    color: #333;
+    transition: color 0.3s ease;
 }
 
-input:checked+.slider::before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+.audioToggle:hover svg {
+    color: #007bff;
+}
+
+/* Label styling */
+.audioLabel {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .audioToggle {
+        background-color: #2a2a2a;
+    }
+    
+    .audioToggle:hover {
+        background-color: #3a3a3a;
+    }
+    
+    .audioToggle svg {
+        color: #fff;
+    }
+    
+    .audioToggle:hover svg {
+        color: #4dabf7;
+    }
+    
+    .audioLabel {
+        color: #fff;
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .audioButton {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .audioToggle {
+        padding: 12px 20px;
+    }
+    
+    .audioToggle svg {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .audioLabel {
+        font-size: 13px;
+    }
+}
+
+/* Accessibility - focus state */
+.audioToggle:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Animation for speaker icon */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.audioToggle svg path {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Stop animation when audio is off */
+.audioToggle svg line {
+    animation: none;
 }
