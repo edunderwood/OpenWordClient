@@ -44,10 +44,6 @@ const AudioComponent = ({ locale, translate }) => {
 
     useEffect(() => {
         const speak = () => {
-            // Only speak if:
-            // 1. Audio is enabled
-            // 2. We have text to speak
-            // 3. Speech synthesis is supported
             if (audio === true && translate && translate.length > 0 && isSupported) {
                 // Cancel any ongoing speech first
                 if (speechSynthesis.speaking) {
@@ -56,12 +52,11 @@ const AudioComponent = ({ locale, translate }) => {
 
                 console.log(`Speaking: "${translate}" in ${locale}`)
                 
-                // Create new utterance
                 const utterance = new SpeechSynthesisUtterance(translate)
                 utterance.lang = locale
-                utterance.rate = 1.0  // Normal speed
-                utterance.pitch = 1.0  // Normal pitch
-                utterance.volume = 1.0  // Full volume
+                utterance.rate = 1.0
+                utterance.pitch = 1.0
+                utterance.volume = 1.0
                 
                 // Try to find a voice for the locale
                 const voice = voices.find(v => v.lang.startsWith(locale.split('-')[0]))
@@ -72,23 +67,12 @@ const AudioComponent = ({ locale, translate }) => {
                     console.log(`No specific voice found for ${locale}, using default`)
                 }
                 
-                // Event handlers for debugging
-                utterance.onstart = () => {
-                    console.log('Speech started')
-                }
+                utterance.onstart = () => console.log('Speech started')
+                utterance.onend = () => console.log('Speech ended')
+                utterance.onerror = (event) => console.error('Speech error:', event.error)
                 
-                utterance.onend = () => {
-                    console.log('Speech ended')
-                }
-                
-                utterance.onerror = (event) => {
-                    console.error('Speech error:', event.error)
-                }
-                
-                // Store reference
                 utteranceRef.current = utterance
                 
-                // Speak
                 try {
                     speechSynthesis.speak(utterance)
                 } catch (error) {
@@ -117,21 +101,43 @@ const AudioComponent = ({ locale, translate }) => {
         )
     }
 
+    // SVG Speaker Icon - similar to uploaded image
+    const SpeakerIcon = () => (
+        <svg 
+            width="40" 
+            height="40" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+        >
+            {/* Speaker cone */}
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="currentColor"/>
+            
+            {audio ? (
+                // Sound waves when audio is ON
+                <>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </>
+            ) : (
+                // Diagonal line through speaker when audio is OFF
+                <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" strokeWidth="2.5"/>
+            )}
+        </svg>
+    );
+
     return (
-        <>
-            <div className={styles.audioButton}>
-                <label className={styles.switch}>
-                    <input 
-                        id='audio-toggle' 
-                        type="checkbox" 
-                        checked={audio}
-                        onChange={handleAudioChange} 
-                    />
-                    <span className={styles.slider}></span>
-                </label>
-                <p>Audio {audio ? '🔊' : '🔇'}</p>
-            </div>
-        </>
+        <div className={styles.audioButton}>
+            <label className={styles.audioToggle} onClick={handleAudioChange}>
+                <SpeakerIcon />
+                <span className={styles.audioLabel}>
+                    Audio {audio ? 'On' : 'Off'}
+                </span>
+            </label>
+        </div>
     )
 }
 
