@@ -4,7 +4,7 @@ import styles from '@/styles/PageHeader.module.css';
 const PageHeaderComponent = (props) => {
     return (
         <div className={styles.pageheader}>
-            <div className={styles.textlabel}>DeBabel</div>
+            <div className={styles.textlabel}>Open Word</div>
             <div className={styles.sessionstatus}>
                 <div className={styles.sessiontext}>Livestream:</div>
                 <div className={styles.sessionindicator}>
