@@ -1,6 +1,6 @@
-/* Audio Component Styles */
+/* Source Text Toggle Component Styles */
 
-.audioButton {
+.sourceTextButton {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -8,7 +8,7 @@
     margin: 0;
 }
 
-.audioToggle {
+.sourceTextToggle {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -21,27 +21,27 @@
     user-select: none;
 }
 
-.audioToggle:hover {
+.sourceTextToggle:hover {
     background-color: #e0e0e0;
     transform: scale(1.05);
 }
 
-.audioToggle:active {
+.sourceTextToggle:active {
     transform: scale(0.95);
 }
 
 /* Icon styling */
-.audioToggle svg {
+.sourceTextToggle svg {
     color: #333;
     transition: color 0.3s ease;
 }
 
-.audioToggle:hover svg {
+.sourceTextToggle:hover svg {
     color: #007bff;
 }
 
 /* Label styling */
-.audioLabel {
+.sourceTextLabel {
     font-size: 14px;
     font-weight: 500;
     color: #333;
@@ -50,69 +50,51 @@
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-    .audioToggle {
+    .sourceTextToggle {
         background-color: #2a2a2a;
     }
     
-    .audioToggle:hover {
+    .sourceTextToggle:hover {
         background-color: #3a3a3a;
     }
     
-    .audioToggle svg {
+    .sourceTextToggle svg {
         color: #fff;
     }
     
-    .audioToggle:hover svg {
-        color: #4dabf7;
+    .sourceTextToggle:hover svg line,
+    .sourceTextToggle:hover svg polyline {
+        stroke: #4dabf7;
     }
     
-    .audioLabel {
+    .sourceTextLabel {
         color: #fff;
     }
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .audioButton {
+    .sourceTextButton {
         padding: 0;
         margin: 0;
     }
     
-    .audioToggle {
+    .sourceTextToggle {
         padding: 12px 20px;
     }
     
-    .audioToggle svg {
+    .sourceTextToggle svg {
         width: 35px;
         height: 35px;
     }
     
-    .audioLabel {
+    .sourceTextLabel {
         font-size: 13px;
     }
 }
 
 /* Accessibility - focus state */
-.audioToggle:focus {
+.sourceTextToggle:focus {
     outline: 2px solid #007bff;
     outline-offset: 2px;
-}
-
-/* Animation for speaker icon */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-}
-
-.audioToggle svg path {
-    animation: pulse 2s ease-in-out infinite;
-}
-
-/* Stop animation when audio is off */
-.audioToggle svg line {
-    animation: none;
 }
