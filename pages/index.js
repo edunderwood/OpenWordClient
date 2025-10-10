@@ -15,6 +15,7 @@ import TranslationBoxComponent from '@/src/TranslationBoxComponent'
 import WaitingMessageComponent from '@/src/WaitingMessageComponent'
 import StopTranslationButtonComponent from '@/src/StopTranslationButtonComponent'
 import LivestreamComponent from '@/src/LivestreamComponent'
+import SourceTextToggleComponent from '@/src/SourceTextToggleComponent'
 
 const Home = () => {
   const router = useRouter()
@@ -35,6 +36,8 @@ const Home = () => {
 
   const [translationLanguage, setTranslationLanguage] = useState();
   const [translationLocale, setTranslationLocale] = useState();
+
+  const [includeSource, setIncludeSource] = useState(false);
 
   const translationRef = useRef(false);
 
@@ -213,6 +216,11 @@ const Home = () => {
     setTranslate(null);
   }
 
+  const handleSourceTextToggle = () => {
+    setIncludeSource(!includeSource);
+    console.log(`Source text toggle: ${!includeSource}`);
+  }
+
   return (
     <>
       <Head>
@@ -243,8 +251,11 @@ const Home = () => {
         }
         {translationRef.current &&
           <div className={styles.translatePage}>
-            <TranslationBoxComponent translate={translate} transcript={transcript} language={translationLanguage} />
-            <AudioComponent locale={translationLocale} translate={translate} />
+            <TranslationBoxComponent translate={translate} transcript={transcript} language={translationLanguage} includeSource={includeSource} />
+            <div className={styles.buttonContainer}>
+              <AudioComponent locale={translationLocale} translate={translate} />
+              <SourceTextToggleComponent includeSource={includeSource} onToggle={handleSourceTextToggle} />
+            </div>
             <StopTranslationButtonComponent onClick={handleStopTranslationButton} />
             {/* */}
           </div>
