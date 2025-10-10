@@ -1,21 +1,21 @@
 {
-  "name": "openwordclient",
-  "version": "1.0.0",
-  "description": "Church translation client application",
+  "name": "open-word",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0",
+    "start-localhost": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.50.0",
-    "eslint-config-next": "^14.0.0"
+    "dotenv": "^16.3.1",
+    "next": "13.5.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-select": "^5.8.0",
+    "rxjs": "^7.8.1",
+    "socket.io-client": "^4.7.2"
   }
 }
