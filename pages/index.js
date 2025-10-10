@@ -1,211 +1,257 @@
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
-import styles from '../styles/Home.module.css';
+import Head from 'next/head'
+import styles from '@/styles/Home.module.css'
+import { useRouter } from 'next/router'
+import { useEffect, useRef, useState } from 'react'
+import socket from '../src/socket'
+import { getLanguage } from '@/src/Utilities'
 
-export default function Home() {
-  // State for toggle
-  const [showOriginal, setShowOriginal] = useState(true);
-  
-  // State for transcript data
-  const [currentTranscript, setCurrentTranscript] = useState({
-    original: '',
-    translation: '',
-    originalLanguage: 'English'
+import AudioComponent from '@/src/AudioComponent'
+import LogoComponent from '@/src/LogoComponent'
+import LanguageButtonDropdownComponent from '@/src/LanguageButtonDropdownComponent'
+import PageHeaderComponent from '@/src/PageHeaderComponent'
+import WelcomeMessageComponent from '@/src/WelcomeMessageComponent'
+import ServiceStatusComponent from '@/src/ServiceStatusComponent'
+import TranslationBoxComponent from '@/src/TranslationBoxComponent'
+import WaitingMessageComponent from '@/src/WaitingMessageComponent'
+import StopTranslationButtonComponent from '@/src/StopTranslationButtonComponent'
+import LivestreamComponent from '@/src/LivestreamComponent'
+
+const Home = () => {
+  const router = useRouter()
+
+  // Get any query parameters
+  const { serviceId } = router.query;
+
+  const [livestream, setLivestream] = useState("OFF");
+  const [languageMap, setLanguageMap] = useState([]);
+  const [defaultServiceId, setDefaultServiceId] = useState("");
+  const [serviceCode, setServiceCode] = useState("")
+  const [serviceReady, setServiceReady] = useState(false);
+  const [rejoin, setRejoin] = useState(false);
+
+  const [translationInProgress, setTranslationInProgress] = useState(false);
+  const [translate, setTranslate] = useState()
+  const [transcript, setTranscript] = useState()
+
+  const [translationLanguage, setTranslationLanguage] = useState();
+  const [translationLocale, setTranslationLocale] = useState();
+
+  const translationRef = useRef(false);
+
+
+  const [churchWelcome, setChurchWelcome] = useState({
+    greeting: "",
+    messages: [],
+    additionalMessage: "",
+    waiting: ""
   });
-  
-  // State for connection and service
-  const [isConnected, setIsConnected] = useState(false);
-  const [serviceActive, setServiceActive] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('Spanish');
-  
-  // Church configuration (these would normally come from the server)
-  const [churchConfig, setChurchConfig] = useState({
-    greeting: '',
-    message: [],
-    logo: '',
-    waitingMessage: ''
-  });
 
-  // Load toggle preference from localStorage on mount
+  const serverName = process.env.NEXT_PUBLIC_SERVER_NAME;
+
+  // Keep track of when things change
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('showOriginal');
-      if (saved !== null) {
-        setShowOriginal(JSON.parse(saved));
-      }
-    }
-  }, []);
+    console.log(`Updated Settings:\n\tLanguage: ${translationLanguage}\n\tLocale: ${translationLocale}\n\tService: ${serviceCode}\n\tTranslationInProgress: ${translationRef.current}`);
+  }, [serviceCode, translationLanguage, translationLocale, rejoin]);
 
-  // Save toggle preference to localStorage when it changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('showOriginal', JSON.stringify(showOriginal));
-    }
-  }, [showOriginal]);
 
-  // WebSocket connection for real-time transcripts
-  useEffect(() => {
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_NAME;
-    if (!serverUrl) return;
-
-    let ws;
-    
-    const connectWebSocket = () => {
+    // Get the specific church properties from the server
+    const fetchData = async () => {
       try {
-        ws = new WebSocket(`${serverUrl.replace('http', 'ws')}/ws`);
-        
-        ws.onopen = () => {
-          console.log('Connected to server');
-          setIsConnected(true);
-          // Send language preference
-          ws.send(JSON.stringify({ 
-            type: 'language', 
-            language: selectedLanguage 
-          }));
-        };
-        
-        ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === 'config') {
-            setChurchConfig(data.config);
-          } else if (data.type === 'service_status') {
-            setServiceActive(data.active);
-          } else if (data.type === 'transcript') {
-            setCurrentTranscript({
-              original: data.original || '',
-              translation: data.translation || '',
-              originalLanguage: data.originalLanguage || 'English'
-            });
-          }
-        };
-        
-        ws.onclose = () => {
-          console.log('Disconnected from server');
-          setIsConnected(false);
-          // Attempt to reconnect after 3 seconds
-          setTimeout(connectWebSocket, 3000);
-        };
-        
-        ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
-        };
-        
+        const response = await fetch(`${serverName}/church/info`)
+        if (!response.ok) {
+          throw new Error("Network response was not OK");
+        }
+        //        .catch((error) => {
+        //          console.warn(`Error getting church info: ${error} `);
+        //        });
+        //      if (response == null) return;
+
+        const jsonResponse = await response.json();
+        const data = jsonResponse.responseObject;
+        if (data.translationLanguages != null) {
+          setLanguageMap(JSON.parse(data.translationLanguages));
+        }
+        setDefaultServiceId(data.defaultServiceId);
+        const churchMessages = JSON.parse(data.message);
+        setChurchWelcome({
+          greeting: data.greeting,
+          messages: churchMessages,
+          additionalMessage: data.additionalWelcome,
+          waiting: data.waiting
+        })
       } catch (error) {
-        console.error('Failed to connect:', error);
-        setTimeout(connectWebSocket, 3000);
+        console.warn(`Error getting church info: ${error} `);
       }
-    };
+    }
 
-    connectWebSocket();
+    fetchData();
+  }, [])
 
-    return () => {
-      if (ws) {
-        ws.close();
+  // When we have a valid service code and that service ID is actively being controlled
+  // on the server side, then register the app.
+  useEffect(() => {
+    console.log(`In useEffect, serviceCode: ${serviceCode}, serviceReady: ${serviceReady}`);
+    if (serviceCode != null && serviceCode.length > 0 && serviceReady) {
+      console.log(`Received Service ID: ${serviceCode}`);
+      socket.emit('register', serviceCode);
+      localStorage.setItem('serviceCode', serviceCode);
+    }
+  }, [serviceCode, serviceReady])
+
+  useEffect(() => {
+    // Need to check if the router is ready before trying to get the serviceId
+    // from the query parameter. Also the default needs to be received from
+    // the server
+    if (router.isReady && defaultServiceId.length > 0) {
+      socketInitializer(), []
+    }
+  }, [router.isReady, defaultServiceId])
+
+
+  // Make sure the server side has initialized this service before
+  // trying to register
+  const handleServiceStatusCallback = (serviceStatusData) => {
+    const { active } = serviceStatusData;
+    setServiceReady(active);
+  }
+  useEffect(() => {
+    console.log(`The service status is now: ${serviceReady}`);
+    if (translationRef.current && serviceReady) {
+      const rejoinLang = localStorage.getItem('language');
+      const rejoinService = localStorage.getItem('serviceCode');
+      joinRoom(rejoinService, rejoinLang);
+    }
+  }, [serviceReady]);
+
+  const socketInitializer = () => {
+    console.log(`In socketInitializer`);
+    socket.connect();
+    socket.on('connect', () => {
+      console.log(`${socket.id} connected to the socket`);
+
+      if (socket.recovered) {
+        console.log(`Successfully recovered socket: ${socket.id}`);
+      } else {
+        // This means that all rooms, connections have been lost, so we need to re-establish
+        console.log(`Unable to recover socket: ${socket.id}`);
+        console.log(`Current Settings:\n\tLanguage: ${translationLanguage}\n\tLocale: ${translationLocale}\n\tService: ${serviceCode}\n\tTranslationInProgress: ${translationInProgress}`);
+
+        // Rejoin if currently translating
+        if (translationRef.current) {
+          const rejoinLang = localStorage.getItem('language');
+          const rejoinService = localStorage.getItem('serviceCode');
+          setServiceCode(rejoinService);
+          // Attempt to trigger a re-render of the Service status check
+          setRejoin(true);
+          console.log(`Attempting to rejoin ${rejoinService}:${rejoinLang}`)
+        }
       }
-    };
-  }, [selectedLanguage]);
 
-  // Handle toggle change
-  const handleToggleChange = (e) => {
-    setShowOriginal(e.target.checked);
-  };
+      if (serviceId == null || serviceId.length == 0 || serviceId == "") {
+        console.log(`Service ID not defined so using default ID from server of: ${defaultServiceId}`);
+        setServiceCode(defaultServiceId);
+      } else {
+        setServiceCode(serviceId);
+      }
+    })
+    socket.on('transcript', (msg) => {
+      console.log(`Transcript: ${msg}`)
+      setTranscript(msg)
+    })
+
+    socket.on('translation', (msg) => {
+      console.log(`Translation: ${msg}`)
+      setTranslate(msg)
+    })
+
+    socket.on('disconnect', (reason) => {
+      console.log(`${socket.id} in index disconnected from the socket.  Reason-> ${reason}`);
+    })
+  }
+
+  const joinRoom = (id, language) => {
+    const room = `${id}:${language}`;
+    console.log(`Joining room: ${room}`)
+    socket.emit('join', room)
+
+    const transcriptRoom = `${id}:transcript`
+    console.log(`Joining ${transcriptRoom}`)
+
+    socket.emit('join', transcriptRoom)
+    setTranslationInProgress(true);
+    translationRef.current = true;
+  }
+
+  const handleLivestreamCallback = (status) => {
+    setLivestream(status);
+  }
+
+  const handleStartButton = (chosenLang) => {
+    const locale = JSON.parse(JSON.stringify(chosenLang)).value;
+    const language = getLanguage(locale);
+    setTranslationLanguage(language);
+    setTranslationLocale(locale);
+    localStorage.setItem('language', language);
+    console.log(`Setting the language to ${language} and locale to ${locale}`);
+    joinRoom(serviceCode, language);
+  }
+
+  const handleStopTranslationButton = () => {
+    const room = `${serviceCode}:${translationLanguage}`;
+    console.log(`Leaving room ${room}`);
+    socket.emit('leave', room);
+
+    // Also leave the transcript
+    const transcriptRoom = `${serviceCode}:transcript`;
+    socket.emit('leave', transcriptRoom);
+    setTranslationInProgress(false);
+    translationRef.current = false;
+
+    // And clear out the translation/transcript
+    setTranscript(null);
+    setTranslate(null);
+  }
 
   return (
-    <div className={styles.container}>
+    <>
       <Head>
-        <title>Church Translation Service</title>
-        <meta name="description" content="Live translation service" />
+        <title>Open Word Translation App</title>
+        <meta name="description" content="Open Word - Real-time translation for religious services" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
       </Head>
-
-      <main className={styles.main}>
-        {/* Church Logo and Greeting */}
-        {churchConfig.logo && (
-          <div className={styles.logoContainer}>
-            <img src={churchConfig.logo} alt="Church Logo" className={styles.logo} />
+      <div className={styles.container}>
+        <ServiceStatusComponent serviceId={serviceCode} parentCallback={handleServiceStatusCallback} />
+        <LivestreamComponent socket={socket} parentCallback={handleLivestreamCallback} />
+        <PageHeaderComponent textLabel="OpenWord" sessionStatus={livestream} />
+        {!translationRef.current &&
+          <div className={styles.home}>
+            <div className={styles.inputBox}>
+              <LogoComponent serverName={serverName} />
+              {/* */}
+              <WelcomeMessageComponent churchWelcome={churchWelcome} />
+              {serviceReady &&
+                <LanguageButtonDropdownComponent languages={languageMap} onClick={handleStartButton} />
+              }
+              {!serviceReady &&
+                <WaitingMessageComponent message={churchWelcome.waiting} />
+              }
+            </div>
           </div>
-        )}
-        
-        {churchConfig.greeting && (
-          <h1 className={styles.greeting}>{churchConfig.greeting}</h1>
-        )}
-
-        {/* Service Status */}
-        {!serviceActive ? (
-          <div className={styles.waitingScreen}>
-            <div className={styles.waitingMessage}>
-              {churchConfig.waitingMessage || 'Translation service will begin shortly...'}
-            </div>
-            {churchConfig.message && churchConfig.message.map((msg, index) => (
-              <p key={index} className={styles.churchMessage}>{msg}</p>
-            ))}
+        }
+        {translationRef.current &&
+          <div className={styles.translatePage}>
+            <TranslationBoxComponent translate={translate} transcript={transcript} language={translationLanguage} />
+            <AudioComponent locale={translationLocale} translate={translate} />
+            <StopTranslationButtonComponent onClick={handleStopTranslationButton} />
+            {/* */}
           </div>
-        ) : (
-          <>
-            {/* Toggle Control */}
-            <div className={styles.controls}>
-              <label className={styles.toggleLabel}>
-                <input
-                  type="checkbox"
-                  checked={showOriginal}
-                  onChange={handleToggleChange}
-                  className={styles.toggleCheckbox}
-                  aria-label="Toggle original text display"
-                />
-                <span className={styles.toggleSwitch}>
-                  <span className={styles.toggleSlider}></span>
-                </span>
-                <span className={styles.toggleText}>
-                  Show Original Language
-                </span>
-              </label>
-            </div>
-
-            {/* Transcript Display */}
-            <div className={styles.transcriptContainer}>
-              {/* Original Text - Conditionally Rendered */}
-              {showOriginal && currentTranscript.original && (
-                <div className={styles.originalSection}>
-                  <h2 className={styles.sectionTitle}>
-                    {currentTranscript.originalLanguage}
-                  </h2>
-                  <div className={styles.textContent}>
-                    {currentTranscript.original}
-                  </div>
-                </div>
-              )}
-
-              {/* Translated Text */}
-              {currentTranscript.translation && (
-                <div className={styles.translationSection}>
-                  <h2 className={styles.sectionTitle}>
-                    {selectedLanguage}
-                  </h2>
-                  <div className={styles.textContent}>
-                    {currentTranscript.translation}
-                  </div>
-                </div>
-              )}
-
-              {/* No transcript message */}
-              {!currentTranscript.original && !currentTranscript.translation && (
-                <div className={styles.noTranscript}>
-                  Waiting for transcript...
-                </div>
-              )}
-            </div>
-
-            {/* Connection Status Indicator */}
-            <div className={styles.statusBar}>
-              <span className={`${styles.statusIndicator} ${isConnected ? styles.connected : styles.disconnected}`}>
-                {isConnected ? '● Connected' : '○ Disconnected'}
-              </span>
-            </div>
-          </>
-        )}
-      </main>
-    </div>
-  );
+        }
+      </div>
+    </>
+  )
 }
+
+export default Home;
