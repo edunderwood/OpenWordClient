@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from '@/styles/TranslationBox.module.css'
 
-const TranslationBoxComponent = ({ translate, transcript, language }) => {
+const TranslationBoxComponent = ({ translate, transcript, language, includeSource }) => {
     const [churchProperties, setChurchProperties] = useState({
         hostLanguage: "en"
     });
@@ -48,7 +48,10 @@ const TranslationBoxComponent = ({ translate, transcript, language }) => {
             translateP.textContent = translate
             transcriptP.textContent = transcript
             textPair.appendChild(translateP)
-            textPair.appendChild(transcriptP)
+            // Only append transcript if includeSource is true
+            if (includeSource) {
+                textPair.appendChild(transcriptP)
+            }
             //            }
             if (language == "ar") {
                 outerBox.dir = "rtl"
@@ -63,7 +66,7 @@ const TranslationBoxComponent = ({ translate, transcript, language }) => {
         }
 
         addTranslate()
-    }, [translate])
+    }, [translate, includeSource])
 
     return (
         <div className={styles.outer} id='translationOuterBox'>
