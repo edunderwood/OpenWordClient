@@ -98,6 +98,19 @@ const Home = () => {
     if (serviceCode != null && serviceCode.length > 0 && serviceReady) {
       console.log(`Received Service ID: ${serviceCode}`);
       socket.emit('register', serviceCode);
+      useEffect(() => {
+  console.log(`In useEffect, serviceCode: ${serviceCode}, serviceReady: ${serviceReady}`);
+  if (serviceCode != null && serviceCode.length > 0 && serviceReady) {
+    console.log(`Received Service ID: ${serviceCode}`);
+    socket.emit('register', serviceCode);
+    localStorage.setItem('serviceCode', serviceCode);
+    
+    // ✅ FIX 3: Join heartbeat room to receive livestream status
+    const heartbeatRoom = `${serviceCode}:heartbeat`;
+    socket.emit('join', heartbeatRoom);
+    console.log(`Joined heartbeat room: ${heartbeatRoom}`);
+  }
+}, [serviceCode, serviceReady])
       localStorage.setItem('serviceCode', serviceCode);
     }
   }, [serviceCode, serviceReady])
