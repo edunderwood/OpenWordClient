@@ -93,27 +93,23 @@ const Home = () => {
 
   // When we have a valid service code and that service ID is actively being controlled
   // on the server side, then register the app.
-  useEffect(() => {
-    console.log(`In useEffect, serviceCode: ${serviceCode}, serviceReady: ${serviceReady}`);
-    if (serviceCode != null && serviceCode.length > 0 && serviceReady) {
-      console.log(`Received Service ID: ${serviceCode}`);
-      socket.emit('register', serviceCode);
-      useEffect(() => {
+// ✅ FIX: Removed duplicate useEffect and cleaned up the logic
+// When we have a valid service code and that service ID is actively being controlled
+// on the server side, then join the heartbeat room to receive livestream status updates
+useEffect(() => {
   console.log(`In useEffect, serviceCode: ${serviceCode}, serviceReady: ${serviceReady}`);
   if (serviceCode != null && serviceCode.length > 0 && serviceReady) {
     console.log(`Received Service ID: ${serviceCode}`);
-    socket.emit('register', serviceCode);
-    localStorage.setItem('serviceCode', serviceCode);
     
-    // ✅ FIX 3: Join heartbeat room to receive livestream status
+    // Join the heartbeat room to receive livestream status updates
     const heartbeatRoom = `${serviceCode}:heartbeat`;
     socket.emit('join', heartbeatRoom);
     console.log(`Joined heartbeat room: ${heartbeatRoom}`);
+    
+    // Store service code for reconnection
+    localStorage.setItem('serviceCode', serviceCode);
   }
 }, [serviceCode, serviceReady])
-      localStorage.setItem('serviceCode', serviceCode);
-    }
-  }, [serviceCode, serviceReady])
 
   useEffect(() => {
     // Need to check if the router is ready before trying to get the serviceId
