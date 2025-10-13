@@ -1,5 +1,5 @@
 {
-  "name": "openword-control-panel",
+  "name": "openword-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,7 +13,9 @@
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "next": "13.5.4",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "socket.io-client": "^4.5.4",
+    "react-select": "^5.7.4"
   },
   "devDependencies": {
     "eslint": "8.51.0",
