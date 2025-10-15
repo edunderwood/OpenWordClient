@@ -168,8 +168,11 @@ export default function ControlPanel() {
                   <span className={styles.infoValue}>{churchData.name}</span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Church Key:</span>
-                  <span className={styles.infoValue}>{churchData.church_key}</span>
+                  <span className={styles.infoLabel}>Organization Key:</span>
+                  <span className={styles.infoValue} style={{fontWeight: 'bold', color: '#007bff'}}>{churchData.church_key}</span>
+                  <small style={{display: 'block', marginTop: '4px', color: '#666'}}>
+                    Use this key in participant URLs
+                  </small>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Default Service ID:</span>
@@ -214,13 +217,16 @@ export default function ControlPanel() {
               )}
             </div>
 
-            {serviceActive && (
+            {serviceActive && churchData && (
               <div className={styles.activeInfo}>
                 <p>Translation service is running</p>
                 <p className={styles.clientUrl}>
-                  Client URL: <a href={`https://your-client-app.vercel.app?serviceId=${churchData?.default_service_id}`} target="_blank" rel="noopener noreferrer">
+                  Participant URL: <a href={`${process.env.NEXT_PUBLIC_CLIENT_URL || window.location.origin}?church=${churchData.church_key}&serviceId=${churchData.default_service_id}`} target="_blank" rel="noopener noreferrer">
                     Open Translation View
                   </a>
+                </p>
+                <p className={styles.helpText}>
+                  Share this URL or QR code with participants to access translations
                 </p>
               </div>
             )}

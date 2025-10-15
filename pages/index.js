@@ -20,8 +20,8 @@ import SourceTextToggleComponent from '@/src/SourceTextToggleComponent'
 const Home = () => {
   const router = useRouter()
 
-  // Get any query parameters
-  const { serviceId } = router.query;
+  // Get query parameters - church key and serviceId
+  const { serviceId, church } = router.query;
 
   const [livestream, setLivestream] = useState("OFF");
   const [languageMap, setLanguageMap] = useState([]);
@@ -61,14 +61,21 @@ const Home = () => {
     // Get the specific church properties from the server
     const fetchData = async () => {
       try {
-        const response = await fetch(`${serverName}/church/info`)
+        // Build URL with church parameter
+        // If no church param is provided, the server will return an error
+        const churchParam = church || '';
+        const url = churchParam
+          ? `${serverName}/church/info?church=${encodeURIComponent(churchParam)}`
+          : `${serverName}/church/info`;
+
+        console.log(`Fetching church info from: ${url}`);
+
+        const response = await fetch(url)
         if (!response.ok) {
-          throw new Error("Network response was not OK");
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Error fetching church info:', errorData);
+          throw new Error(errorData.message || "Network response was not OK");
         }
-        //        .catch((error) => {
-        //          console.warn(`Error getting church info: ${error} `);
-        //        });
-        //      if (response == null) return;
 
         const jsonResponse = await response.json();
         const data = jsonResponse.responseObject;
@@ -85,11 +92,20 @@ const Home = () => {
         })
       } catch (error) {
         console.warn(`Error getting church info: ${error} `);
+        // If church parameter is missing, show helpful message
+        if (!church) {
+          setChurchWelcome({
+            greeting: "Configuration Required",
+            messages: ["Please add your organization key to the URL.", "Example: ?church=YOUR_CHURCH_KEY"],
+            additionalMessage: "",
+            waiting: "Waiting for configuration..."
+          })
+        }
       }
     }
 
     fetchData();
-  }, [])
+  }, [church])
 
   // When we have a valid service code and that service ID is actively being controlled
   // on the server side, then register the app.
