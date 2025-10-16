@@ -262,7 +262,7 @@ useEffect(() => {
         {!translationRef.current &&
           <div className={styles.home}>
             <div className={styles.inputBox}>
-              <LogoComponent serverName={serverName} />
+              <LogoComponent serverName={serverName} churchKey={church} />
               {/* */}
               <WelcomeMessageComponent churchWelcome={churchWelcome} />
               {serviceReady &&
