@@ -17,6 +17,8 @@ export default function ControlPanel() {
   const [churchData, setChurchData] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
   const [serviceActive, setServiceActive] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState(null);
+  const [loadingQr, setLoadingQr] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -46,6 +48,10 @@ export default function ControlPanel() {
       if (response.ok) {
         const data = await response.json();
         setChurchData(data.data);
+        // Generate QR code after fetching church data
+        if (data.data) {
+          generateQRCode(data.data.church_key, data.data.default_service_id);
+        }
       } else {
         console.error('Failed to fetch church data');
       }
@@ -53,6 +59,37 @@ export default function ControlPanel() {
       console.error('Error fetching church data:', error);
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const generateQRCode = async (churchKey, serviceId) => {
+    setLoadingQr(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_NAME}/qrcode/generate`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            churchKey: churchKey,
+            serviceId: serviceId,
+            format: 'png'
+          })
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setQrCodeUrl(data.responseObject.qrCode);
+      } else {
+        console.error('Failed to generate QR code');
+      }
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+    } finally {
+      setLoadingQr(false);
     }
   };
 
@@ -232,7 +269,78 @@ export default function ControlPanel() {
             )}
           </div>
 
-          {/* Quick Stats (Placeholder) */}
+          {/* QR Code Card */}
+          {churchData && (
+            <div className={styles.card}>
+              <h2 className={styles.cardTitle}>Participant Access</h2>
+
+              <div className={styles.qrSection}>
+                <p className={styles.qrDescription}>
+                  Share this QR code or URL with participants to access the translation service
+                </p>
+
+                {loadingQr ? (
+                  <div className={styles.qrLoading}>
+                    <div className={styles.spinner}></div>
+                    <p>Generating QR code...</p>
+                  </div>
+                ) : qrCodeUrl ? (
+                  <div className={styles.qrCodeContainer}>
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Code for Translation Service"
+                      className={styles.qrCodeImage}
+                    />
+                    <p className={styles.qrCodeInfo}>
+                      Scan to access: {churchData.name}
+                    </p>
+                    <button
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = qrCodeUrl;
+                        link.download = `${churchData.church_key}-qr-code.png`;
+                        link.click();
+                      }}
+                      className={styles.downloadButton}
+                    >
+                      Download QR Code
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => generateQRCode(churchData.church_key, churchData.default_service_id)}
+                    className={styles.button}
+                  >
+                    Generate QR Code
+                  </button>
+                )}
+
+                <div className={styles.urlDisplay}>
+                  <label className={styles.urlLabel}>Participant URL:</label>
+                  <div className={styles.urlBox}>
+                    <input
+                      type="text"
+                      value={`${process.env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== 'undefined' ? window.location.origin : '')}?church=${churchData.church_key}&serviceId=${churchData.default_service_id}`}
+                      readOnly
+                      className={styles.urlInput}
+                    />
+                    <button
+                      onClick={() => {
+                        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}?church=${churchData.church_key}&serviceId=${churchData.default_service_id}`;
+                        navigator.clipboard.writeText(url);
+                        alert('URL copied to clipboard!');
+                      }}
+                      className={styles.copyButton}
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Stats Grid - Moved after QR Code */}
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
               <h3 className={styles.statValue}>0</h3>
