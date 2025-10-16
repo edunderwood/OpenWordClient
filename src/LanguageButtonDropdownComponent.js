@@ -27,6 +27,14 @@ const buttonStyle = {
     bottom: '10%',
 };
 
+const labelStyle = {
+    fontSize: '18px',
+    fontWeight: '500',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: '10px'
+};
+
 const LanguageButtonDropdownComponent = ({ languages, onClick }) => {
     const options = languages.map((language) => ({
         value: language.locale,
@@ -45,6 +53,7 @@ const LanguageButtonDropdownComponent = ({ languages, onClick }) => {
 
     return (
         <div style={container}>
+            <p style={labelStyle}>Please select a language</p>
             <Select
                 value={selectedLanguage}
                 onChange={handleChange}

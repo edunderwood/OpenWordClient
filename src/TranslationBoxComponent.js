@@ -52,15 +52,7 @@ const TranslationBoxComponent = ({ translate, transcript, language, includeSourc
             if (includeSource) {
                 textPair.appendChild(transcriptP)
             }
-            //            }
-            if (language == "ar") {
-                outerBox.dir = "rtl"
-            } else {
-                outerBox.dir = "ltr"
-            }
 
-
-            //            div.appendChild(p)
             div.appendChild(textPair)
             div.scrollTo(0, div.scrollHeight)
         }
@@ -68,8 +60,14 @@ const TranslationBoxComponent = ({ translate, transcript, language, includeSourc
         addTranslate()
     }, [translate, includeSource])
 
+    // Determine if language is RTL
+    const isRTL = (lang) => {
+        const rtlLanguages = ['ar', 'he', 'fa', 'ur', 'yi', 'ps', 'sd'];
+        return rtlLanguages.includes(lang);
+    };
+
     return (
-        <div className={styles.outer} id='translationOuterBox'>
+        <div className={styles.outer} id='translationOuterBox' dir={isRTL(language) ? 'rtl' : 'ltr'}>
             <div id='translationBox' className={styles.translationBox}>
             </div>
         </div>

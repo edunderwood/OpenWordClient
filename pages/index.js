@@ -36,6 +36,7 @@ const Home = () => {
 
   const [translationLanguage, setTranslationLanguage] = useState();
   const [translationLocale, setTranslationLocale] = useState();
+  const [translationLanguageName, setTranslationLanguageName] = useState();
 
   const [includeSource, setIncludeSource] = useState(false);
 
@@ -155,6 +156,10 @@ useEffect(() => {
     if (translationRef.current && serviceReady) {
       const rejoinLang = localStorage.getItem('language');
       const rejoinService = localStorage.getItem('serviceCode');
+      const rejoinLangName = localStorage.getItem('languageName');
+      if (rejoinLangName) {
+        setTranslationLanguageName(rejoinLangName);
+      }
       joinRoom(rejoinService, rejoinLang);
     }
   }, [serviceReady]);
@@ -176,7 +181,11 @@ useEffect(() => {
         if (translationRef.current) {
           const rejoinLang = localStorage.getItem('language');
           const rejoinService = localStorage.getItem('serviceCode');
+          const rejoinLangName = localStorage.getItem('languageName');
           setServiceCode(rejoinService);
+          if (rejoinLangName) {
+            setTranslationLanguageName(rejoinLangName);
+          }
           // Attempt to trigger a re-render of the Service status check
           setRejoin(true);
           console.log(`Attempting to rejoin ${rejoinService}:${rejoinLang}`)
@@ -224,11 +233,14 @@ useEffect(() => {
 
   const handleStartButton = (chosenLang) => {
     const locale = JSON.parse(JSON.stringify(chosenLang)).value;
+    const languageName = JSON.parse(JSON.stringify(chosenLang)).label;
     const language = getLanguage(locale);
     setTranslationLanguage(language);
     setTranslationLocale(locale);
+    setTranslationLanguageName(languageName);
     localStorage.setItem('language', language);
-    console.log(`Setting the language to ${language} and locale to ${locale}`);
+    localStorage.setItem('languageName', languageName);
+    console.log(`Setting the language to ${language} (${languageName}) and locale to ${locale}`);
     joinRoom(serviceCode, language);
   }
 
@@ -283,6 +295,12 @@ useEffect(() => {
         }
         {translationRef.current &&
           <div className={styles.translatePage}>
+            {translationLanguageName && (
+              <div className={styles.languageIndicator}>
+                <span className={styles.languageLabel}>Translation Language:</span>
+                <span className={styles.languageName}>{translationLanguageName}</span>
+              </div>
+            )}
             <TranslationBoxComponent translate={translate} transcript={transcript} language={translationLanguage} includeSource={includeSource} />
             <div className={styles.buttonContainer}>
               <AudioComponent locale={translationLocale} translate={translate} />
