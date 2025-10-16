@@ -19,6 +19,7 @@ export default function ControlPanel() {
   const [serviceActive, setServiceActive] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [loadingQr, setLoadingQr] = useState(false);
+  const [noChurchProfile, setNoChurchProfile] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -47,16 +48,26 @@ export default function ControlPanel() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Church data loaded:', data);
         setChurchData(data.data);
         // Generate QR code after fetching church data
         if (data.data) {
           generateQRCode(data.data.church_key, data.data.default_service_id);
         }
       } else {
-        console.error('Failed to fetch church data');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Failed to fetch church data:', response.status, errorData);
+
+        if (response.status === 404) {
+          // User doesn't have a church profile yet
+          setNoChurchProfile(true);
+        } else {
+          alert(`Failed to load church data: ${errorData.message || errorData.error || 'Unknown error'}\n\nStatus: ${response.status}`);
+        }
       }
     } catch (error) {
-      console.error('Error fetching church data:', error);
+      console.error('❌ Error fetching church data:', error);
+      alert(`Error loading church data: ${error.message}\n\nPlease check that you're logged in and have a church profile.`);
     } finally {
       setLoadingData(false);
     }
@@ -175,6 +186,63 @@ export default function ControlPanel() {
   // Don't render anything if not authenticated (will redirect)
   if (!user) {
     return null;
+  }
+
+  // Show setup message if no church profile
+  if (noChurchProfile) {
+    return (
+      <>
+        <Head>
+          <title>Setup Required - OpenWord</title>
+        </Head>
+
+        <div className={styles.container}>
+          <header className={styles.header}>
+            <div className={styles.headerContent}>
+              <h1 className={styles.logo}>OpenWord Control Panel</h1>
+              <div className={styles.userInfo}>
+                <span className={styles.userEmail}>{user.email}</span>
+                <button onClick={handleSignOut} className={styles.signOutButton}>
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className={styles.main}>
+            <div className={styles.card}>
+              <h2 className={styles.cardTitle}>Church Profile Setup Required</h2>
+              <p style={{marginBottom: '20px'}}>
+                Your account doesn't have a church profile yet. To use the OpenWord translation service,
+                you need to complete your church setup.
+              </p>
+
+              <h3 style={{fontSize: '16px', marginBottom: '12px'}}>Next Steps:</h3>
+              <ol style={{lineHeight: '1.8', paddingLeft: '20px'}}>
+                <li>Contact your administrator or support team</li>
+                <li>They will create a church profile for your organization in the database</li>
+                <li>Once setup is complete, refresh this page to access the control panel</li>
+              </ol>
+
+              <div style={{marginTop: '24px', padding: '16px', background: '#f7fafc', borderRadius: '8px', border: '1px solid #e2e8f0'}}>
+                <p style={{margin: '0', fontSize: '14px', color: '#4a5568'}}>
+                  <strong>For Administrators:</strong> Create a church profile using the Supabase database
+                  or the registration endpoint. See <code>MIGRATION-GUIDE-EXISTING-TABLES.md</code> for instructions.
+                </p>
+              </div>
+
+              <button
+                onClick={() => window.location.reload()}
+                className={styles.button}
+                style={{marginTop: '24px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}
+              >
+                Refresh Page
+              </button>
+            </div>
+          </main>
+        </div>
+      </>
+    );
   }
 
   return (
