@@ -307,8 +307,8 @@ useEffect(() => {
             <div className={styles.buttonContainer}>
               <AudioComponent locale={translationLocale} translate={translate} />
               <SourceTextToggleComponent includeSource={includeSource} onToggle={handleSourceTextToggle} />
+              <StopTranslationButtonComponent onClick={handleStopTranslationButton} />
             </div>
-            <StopTranslationButtonComponent onClick={handleStopTranslationButton} />
             {/* */}
           </div>
         }

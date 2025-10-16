@@ -1,0 +1,71 @@
+/* Stop Button Component Styles */
+
+.stopButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+.stopButtonInner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 15px 30px;
+    background-color: #dc2626;
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    user-select: none;
+    color: white;
+    font-weight: 600;
+}
+
+.stopButtonInner:hover {
+    background-color: #b91c1c;
+    transform: scale(1.05);
+}
+
+.stopButtonInner:active {
+    transform: scale(0.95);
+}
+
+/* Icon styling */
+.stopIcon {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+/* Label styling */
+.stopLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .stopButtonInner {
+        padding: 12px 25px;
+    }
+
+    .stopIcon {
+        width: 35px;
+        height: 35px;
+    }
+
+    .stopLabel {
+        font-size: 13px;
+    }
+}
+
+/* Accessibility - focus state */
+.stopButtonInner:focus {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+}
