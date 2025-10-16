@@ -49,6 +49,7 @@ const Home = () => {
     additionalMessage: "",
     waiting: ""
   });
+  const [churchName, setChurchName] = useState("");
 
   const serverName = process.env.NEXT_PUBLIC_SERVER_NAME;
 
@@ -91,6 +92,7 @@ const Home = () => {
           setLanguageMap(JSON.parse(data.translationLanguages));
         }
         setDefaultServiceId(data.defaultServiceId);
+        setChurchName(data.name || data.churchName || "");
         const churchMessages = JSON.parse(data.message);
         setChurchWelcome({
           greeting: data.greeting,
@@ -277,7 +279,7 @@ useEffect(() => {
       <div className={styles.container}>
         <ServiceStatusComponent serviceId={serviceCode} parentCallback={handleServiceStatusCallback} />
         <LivestreamComponent socket={socket} parentCallback={handleLivestreamCallback} />
-        <PageHeaderComponent textLabel="OpenWord" sessionStatus={livestream} />
+        <PageHeaderComponent churchName={churchName} sessionStatus={livestream} />
         {!translationRef.current &&
           <div className={styles.home}>
             <div className={styles.inputBox}>

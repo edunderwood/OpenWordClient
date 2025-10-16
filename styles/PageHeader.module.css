@@ -28,13 +28,26 @@
 .sessionstatus {
     float: right;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.brandtext {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+}
+
+.livestreamrow {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .sessiontext {
-    display: inline-block;
-    padding-right: 5px;
     font-size: 16px;
-    margin-top: 1px;
 }
 
 .sessionindicator {
