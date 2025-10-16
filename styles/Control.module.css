@@ -387,6 +387,34 @@
   text-align: center;
 }
 
+.qrUrlDisplay {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  max-width: 400px;
+}
+
+.qrUrlDisplay small {
+  font-size: 11px;
+  color: #718096;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qrUrlDisplay code {
+  font-size: 12px;
+  color: #2d3748;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
 .qrLoading {
   display: flex;
   flex-direction: column;

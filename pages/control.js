@@ -64,6 +64,7 @@ export default function ControlPanel() {
 
   const generateQRCode = async (churchKey, serviceId) => {
     setLoadingQr(true);
+    console.log('🔍 Generating QR code with:', { churchKey, serviceId });
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_NAME}/qrcode/generate`,
@@ -82,12 +83,16 @@ export default function ControlPanel() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ QR code generated successfully');
         setQrCodeUrl(data.responseObject.qrCode);
       } else {
-        console.error('Failed to generate QR code');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Failed to generate QR code:', errorData);
+        alert(`Failed to generate QR code: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('❌ Error generating QR code:', error);
+      alert(`Error generating QR code: ${error.message}`);
     } finally {
       setLoadingQr(false);
     }
@@ -294,6 +299,13 @@ export default function ControlPanel() {
                     <p className={styles.qrCodeInfo}>
                       Scan to access: {churchData.name}
                     </p>
+                    <div className={styles.qrUrlDisplay}>
+                      <small>QR Code URL:</small>
+                      <code>
+                        {typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_CLIENT_URL || ''}
+                        ?church={churchData.church_key}&serviceId={churchData.default_service_id}
+                      </code>
+                    </div>
                     <button
                       onClick={() => {
                         const link = document.createElement('a');
