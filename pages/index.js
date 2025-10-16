@@ -61,12 +61,19 @@ const Home = () => {
     // Get the specific church properties from the server
     const fetchData = async () => {
       try {
-        // Build URL with church parameter
-        // If no church param is provided, the server will return an error
-        const churchParam = church || '';
-        const url = churchParam
-          ? `${serverName}/church/info?church=${encodeURIComponent(churchParam)}`
-          : `${serverName}/church/info`;
+        // Don't fetch if no church parameter
+        if (!church) {
+          console.warn('⚠️  No church parameter in URL, skipping church info fetch');
+          setChurchWelcome({
+            greeting: "Configuration Required",
+            messages: ["Please add your organization key to the URL.", "Example: ?church=YOUR_CHURCH_KEY"],
+            additionalMessage: "",
+            waiting: "Waiting for configuration..."
+          });
+          return;
+        }
+
+        const url = `${serverName}/church/info?church=${encodeURIComponent(church)}`;
 
         console.log(`Fetching church info from: ${url}`);
 
