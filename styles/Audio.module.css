@@ -20,8 +20,8 @@
     border-radius: 50%;
     transition: all 0.3s ease;
     user-select: none;
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
 }
 
 .audioToggle:hover {

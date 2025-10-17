@@ -21,8 +21,8 @@
     transition: all 0.3s ease;
     user-select: none;
     color: white;
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
 }
 
 .stopButtonInner:hover {
