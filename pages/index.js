@@ -77,7 +77,7 @@ const Home = () => {
           return;
         }
 
-        const url = `${serverName}/organisation/info?organisation=${encodeURIComponent(church)}`;
+        const url = `${serverName}/organisation/info?organisation=${encodeURIComponent(organisation || church)}`;
 
         console.log(`Fetching organisation info from: ${url}`);
 
@@ -98,7 +98,7 @@ const Home = () => {
         const organisationMessages = JSON.parse(data.message);
         setOrganisationWelcome({
           greeting: data.greeting,
-          messages: churchMessages,
+          messages: organisationMessages,
           additionalMessage: data.additionalWelcome,
           waiting: data.waiting
         })
