@@ -40,7 +40,7 @@ const Home = () => {
   const [translationLanguageName, setTranslationLanguageName] = useState();
 
   const [includeSource, setIncludeSource] = useState(false);
-  const [textSize, setTextSize] = useState('medium'); // small, medium, large
+  const [textSize, setTextSize] = useState('small'); // small, medium, large
 
   const translationRef = useRef(false);
 

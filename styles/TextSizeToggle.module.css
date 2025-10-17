@@ -14,14 +14,14 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    padding: 12px;
+    padding: 15px;
     background-color: #f0f0f0;
     border: 2px solid #ddd;
-    border-radius: 50%;
+    border-radius: 20px;
     transition: all 0.3s ease;
     user-select: none;
-    width: 56px;
-    height: 56px;
+    width: 150px;
+    height: 150px;
 }
 
 .textSizeToggle:hover {

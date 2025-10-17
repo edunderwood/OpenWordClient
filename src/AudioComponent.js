@@ -126,8 +126,8 @@ const AudioComponent = ({ locale, translate }) => {
     // SVG Speaker Icon
     const SpeakerIcon = () => (
         <svg
-            width="40"
-            height="40"
+            width="120"
+            height="120"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
