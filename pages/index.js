@@ -21,7 +21,7 @@ import TextSizeToggleComponent from '@/src/TextSizeToggleComponent'
 const Home = () => {
   const router = useRouter()
 
-  // Get query parameters - church key and serviceId
+  // Get query parameters - organisation key and serviceId
   const { serviceId, organisation, church } = router.query;
 
   const [livestream, setLivestream] = useState("OFF");
@@ -67,7 +67,7 @@ const Home = () => {
       try {
         // Don't fetch if no organisation parameter
         if (!organisation && !church) {
-          console.warn('⚠️  No organisation parameter in URL, skipping church info fetch');
+          console.warn('⚠️  No organisation parameter in URL, skipping organisation info fetch');
           setOrganisationWelcome({
             greeting: "Configuration Required",
             messages: ["Please add your organization key to the URL.", "Example: ?organisation=YOUR_ORGANISATION_KEY"],
@@ -84,7 +84,7 @@ const Home = () => {
         const response = await fetch(url)
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('Error fetching church info:', errorData);
+          console.error('Error fetching organisation info:', errorData);
           throw new Error(errorData.message || "Network response was not OK");
         }
 
@@ -103,7 +103,7 @@ const Home = () => {
           waiting: data.waiting
         })
       } catch (error) {
-        console.warn(`Error getting church info: ${error} `);
+        console.warn(`Error getting organisation info: ${error} `);
         // If organisation parameter is missing, show helpful message
         if (!organisation && !church) {
           setOrganisationWelcome({
@@ -117,7 +117,7 @@ const Home = () => {
     }
 
     fetchData();
-  }, [church])
+  }, [church, organisation])
 
   // When we have a valid service code and that service ID is actively being controlled
   // on the server side, then register the app.

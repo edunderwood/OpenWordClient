@@ -13,18 +13,18 @@ const LogoComponent = ({ serverName, organisationKey }) => {
                 setLoading(true);
                 setError(null);
 
-                // Build URL with church parameter for multi-tenant support
-                const churchParam = organisationKey || '';
+                // Build URL with organisation parameter for multi-tenant support
+                const organisationParam = organisationKey || '';
 
                 console.log(`🖼️  LogoComponent Props:`, { serverName, organisationKey });
 
-                if (!churchParam) {
+                if (!organisationParam) {
                     console.warn('⚠️  No organisation key provided to LogoComponent');
                     setLoading(false);
                     return;
                 }
 
-                const url = `${serverName}/organisation/info?organisation=${encodeURIComponent(churchParam)}`;
+                const url = `${serverName}/organisation/info?organisation=${encodeURIComponent(organisationParam)}`;
                 console.log(`🖼️  Fetching logo from: ${url}`);
 
                 const response = await fetch(url)
@@ -98,7 +98,7 @@ const LogoComponent = ({ serverName, organisationKey }) => {
         <div className={styles.logo}>
             <img
                 src={imageUrl}
-                alt="Church Logo"
+                alt="Organisation Logo"
                 onLoad={() => console.log('✅ Logo image loaded successfully')}
                 onError={(e) => console.error('❌ Logo image failed to load:', e)}
             />

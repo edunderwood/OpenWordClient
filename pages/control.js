@@ -19,7 +19,7 @@ export default function ControlPanel() {
   const [serviceActive, setServiceActive] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [loadingQr, setLoadingQr] = useState(false);
-  const [noChurchProfile, setNoChurchProfile] = useState(false);
+  const [noOrganisationProfile, setNoOrganisationProfile] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function ControlPanel() {
     }
   }, [user, loading, router]);
 
-  // Fetch church data when user is authenticated
+  // Fetch organisation data when user is authenticated
   useEffect(() => {
     if (user && session) {
       fetchOrganisationData();
@@ -50,9 +50,9 @@ export default function ControlPanel() {
         const data = await response.json();
         console.log('✅ Organisation data loaded:', data);
         setOrganisationData(data.data);
-        // Generate QR code after fetching church data
+        // Generate QR code after fetching organisation data
         if (data.data) {
-          generateQRCode(data.data.church_key, data.data.default_service_id);
+          generateQRCode(data.data.organisation_key, data.data.default_service_id);
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -60,22 +60,22 @@ export default function ControlPanel() {
 
         if (response.status === 404) {
           // User doesn't have an organisation profile yet
-          setNoChurchProfile(true);
+          setNoOrganisationProfile(true);
         } else {
-          alert(`Failed to load church data: ${errorData.message || errorData.error || 'Unknown error'}\n\nStatus: ${response.status}`);
+          alert(`Failed to load organisation data: ${errorData.message || errorData.error || 'Unknown error'}\n\nStatus: ${response.status}`);
         }
       }
     } catch (error) {
-      console.error('❌ Error fetching church data:', error);
+      console.error('❌ Error fetching organisation data:', error);
       alert(`Error loading organisation data: ${error.message}\n\nPlease check that you're logged in and have an organisation profile.`);
     } finally {
       setLoadingData(false);
     }
   };
 
-  const generateQRCode = async (churchKey, serviceId) => {
+  const generateQRCode = async (organisationKey, serviceId) => {
     setLoadingQr(true);
-    console.log('🔍 Generating QR code with:', { churchKey, serviceId });
+    console.log('🔍 Generating QR code with:', { organisationKey, serviceId });
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_NAME}/qrcode/generate`,
@@ -188,8 +188,8 @@ export default function ControlPanel() {
     return null;
   }
 
-  // Show setup message if no church profile
-  if (noChurchProfile) {
+  // Show setup message if no organisation profile
+  if (noOrganisationProfile) {
     return (
       <>
         <Head>
@@ -211,7 +211,7 @@ export default function ControlPanel() {
 
           <main className={styles.main}>
             <div className={styles.card}>
-              <h2 className={styles.cardTitle}>Church Profile Setup Required</h2>
+              <h2 className={styles.cardTitle}>Organisation Profile Setup Required</h2>
               <p style={{marginBottom: '20px'}}>
                 Your account doesn't have an organisation profile yet. To use the OpenWord translation service,
                 you need to complete your organisation setup.
@@ -268,10 +268,10 @@ export default function ControlPanel() {
 
         {/* Main Content */}
         <main className={styles.main}>
-          {/* Church Info Card */}
+          {/* Organisation Info Card */}
           {organisationData && (
             <div className={styles.card}>
-              <h2 className={styles.cardTitle}>Church Information</h2>
+              <h2 className={styles.cardTitle}>Organisation Information</h2>
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Name:</span>
@@ -286,11 +286,11 @@ export default function ControlPanel() {
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Default Service ID:</span>
-                  <span className={styles.infoValue}>{churchData.default_service_id}</span>
+                  <span className={styles.infoValue}>{organisationData.default_service_id}</span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Host Language:</span>
-                  <span className={styles.infoValue}>{churchData.host_language}</span>
+                  <span className={styles.infoValue}>{organisationData.host_language}</span>
                 </div>
               </div>
             </div>
@@ -331,7 +331,7 @@ export default function ControlPanel() {
               <div className={styles.activeInfo}>
                 <p>Translation service is running</p>
                 <p className={styles.clientUrl}>
-                  Participant URL: <a href={`${process.env.NEXT_PUBLIC_CLIENT_URL || window.location.origin}?church=${organisationData.organisation_key}&serviceId=${churchData.default_service_id}`} target="_blank" rel="noopener noreferrer">
+                  Participant URL: <a href={`${process.env.NEXT_PUBLIC_CLIENT_URL || window.location.origin}?organisation=${organisationData.organisation_key}&serviceId=${organisationData.default_service_id}`} target="_blank" rel="noopener noreferrer">
                     Open Translation View
                   </a>
                 </p>
@@ -371,7 +371,7 @@ export default function ControlPanel() {
                       <small>QR Code URL:</small>
                       <code>
                         {typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_CLIENT_URL || ''}
-                        ?church={organisationData.organisation_key}&serviceId={churchData.default_service_id}
+                        ?organisation={organisationData.organisation_key}&serviceId={organisationData.default_service_id}
                       </code>
                     </div>
                     <button
@@ -388,7 +388,7 @@ export default function ControlPanel() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => generateQRCode(organisationData.organisation_key, churchData.default_service_id)}
+                    onClick={() => generateQRCode(organisationData.organisation_key, organisationData.default_service_id)}
                     className={styles.button}
                   >
                     Generate QR Code
@@ -400,13 +400,13 @@ export default function ControlPanel() {
                   <div className={styles.urlBox}>
                     <input
                       type="text"
-                      value={`${process.env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== 'undefined' ? window.location.origin : '')}?church=${organisationData.organisation_key}&serviceId=${churchData.default_service_id}`}
+                      value={`${process.env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== 'undefined' ? window.location.origin : '')}?organisation=${organisationData.organisation_key}&serviceId=${organisationData.default_service_id}`}
                       readOnly
                       className={styles.urlInput}
                     />
                     <button
                       onClick={() => {
-                        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}?church=${organisationData.organisation_key}&serviceId=${churchData.default_service_id}`;
+                        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}?organisation=${organisationData.organisation_key}&serviceId=${organisationData.default_service_id}`;
                         navigator.clipboard.writeText(url);
                         alert('URL copied to clipboard!');
                       }}
