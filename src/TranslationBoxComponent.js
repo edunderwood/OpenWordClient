@@ -29,10 +29,19 @@ const TranslationBoxComponent = ({ translate, transcript, language, includeSourc
 
     // Runs anytime translate changes
     useEffect(() => {
+        // Don't add anything if translate is empty/null/undefined
+        if (!translate) {
+            return;
+        }
+
         const addTranslate = () => {
-            console.log(`Translate: ${translate}, transcript: ${transcript}, hostLang: ${churchProperties.hostLanguage}, langugage: ${language}`);
+            console.log(`Translate: ${translate}, transcript: ${transcript}, hostLang: ${churchProperties.hostLanguage}, language: ${language}`);
             const div = document.getElementById('translationBox')
-            const outerBox = document.getElementById('translationOuterBox')
+
+            if (!div) {
+                console.error('Translation box div not found!');
+                return;
+            }
 
             const textPair = document.createElement('div');
             const translateP = document.createElement('p')
@@ -41,15 +50,13 @@ const TranslationBoxComponent = ({ translate, transcript, language, includeSourc
             textPair.className = styles.translationTranscriptPair
             translateP.className = styles.translatedText
             transcriptP.className = styles.transcriptText
-            //            if (language == churchProperties.hostLanguage) {
-            //                translateP.textContent = transcript
-            //                textPair.appendChild(translateP)
-            //            } else {
+
             translateP.textContent = translate
             transcriptP.textContent = transcript
             textPair.appendChild(translateP)
+
             // Only append transcript if includeSource is true
-            if (includeSource) {
+            if (includeSource && transcript) {
                 textPair.appendChild(transcriptP)
             }
 

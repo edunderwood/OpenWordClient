@@ -101,21 +101,21 @@ const AudioComponent = ({ locale, translate }) => {
         )
     }
 
-    // SVG Speaker Icon - similar to uploaded image
+    // SVG Speaker Icon
     const SpeakerIcon = () => (
-        <svg 
-            width="40" 
-            height="40" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
+        <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
             strokeWidth="2"
-            strokeLinecap="round" 
+            strokeLinecap="round"
             strokeLinejoin="round"
         >
             {/* Speaker cone */}
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="currentColor"/>
-            
+
             {audio ? (
                 // Sound waves when audio is ON
                 <>
@@ -131,12 +131,9 @@ const AudioComponent = ({ locale, translate }) => {
 
     return (
         <div className={styles.audioButton}>
-            <label className={styles.audioToggle} onClick={handleAudioChange}>
+            <button className={styles.audioToggle} onClick={handleAudioChange} type="button">
                 <SpeakerIcon />
-                <span className={styles.audioLabel}>
-                    Audio {audio ? 'On' : 'Off'}
-                </span>
-            </label>
+            </button>
         </div>
     )
 }
