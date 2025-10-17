@@ -6,8 +6,8 @@ const TextSizeToggleComponent = ({ textSize, onToggle }) => {
     // SVG Text Size Icon - shows A with size indicators
     const TextSizeIcon = () => (
         <svg
-            width="120"
-            height="120"
+            width="44"
+            height="44"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

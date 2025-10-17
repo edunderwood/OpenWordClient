@@ -6,8 +6,8 @@ const SourceTextToggleComponent = ({ includeSource, onToggle }) => {
     // SVG Text Icon
     const TextIcon = () => (
         <svg
-            width="120"
-            height="120"
+            width="44"
+            height="44"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

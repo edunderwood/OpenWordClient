@@ -6,8 +6,8 @@ const StopTranslationButtonComponent = ({ onClick }) => {
     // SVG Stop Icon (square)
     const StopIcon = () => (
         <svg
-            width="120"
-            height="120"
+            width="44"
+            height="44"
             viewBox="0 0 24 24"
             fill="white"
             stroke="white"
