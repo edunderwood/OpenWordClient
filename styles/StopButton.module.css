@@ -14,15 +14,15 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    padding: 15px;
+    padding: 5px;
     background-color: #dc2626;
     border: 2px solid #b91c1c;
-    border-radius: 20px;
+    border-radius: 15px;
     transition: all 0.3s ease;
     user-select: none;
     color: white;
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
 }
 
 .stopButtonInner:hover {
