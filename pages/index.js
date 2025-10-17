@@ -16,6 +16,7 @@ import WaitingMessageComponent from '@/src/WaitingMessageComponent'
 import StopTranslationButtonComponent from '@/src/StopTranslationButtonComponent'
 import LivestreamComponent from '@/src/LivestreamComponent'
 import SourceTextToggleComponent from '@/src/SourceTextToggleComponent'
+import TextSizeToggleComponent from '@/src/TextSizeToggleComponent'
 
 const Home = () => {
   const router = useRouter()
@@ -39,6 +40,7 @@ const Home = () => {
   const [translationLanguageName, setTranslationLanguageName] = useState();
 
   const [includeSource, setIncludeSource] = useState(false);
+  const [textSize, setTextSize] = useState('medium'); // small, medium, large
 
   const translationRef = useRef(false);
 
@@ -267,6 +269,16 @@ useEffect(() => {
     console.log(`Source text toggle: ${!includeSource}`);
   }
 
+  const handleTextSizeToggle = () => {
+    // Cycle through: medium -> large -> small -> medium
+    const sizes = ['medium', 'large', 'small'];
+    const currentIndex = sizes.indexOf(textSize);
+    const nextIndex = (currentIndex + 1) % sizes.length;
+    const newSize = sizes[nextIndex];
+    setTextSize(newSize);
+    console.log(`Text size changed to: ${newSize}`);
+  }
+
   return (
     <>
       <Head>
@@ -303,10 +315,11 @@ useEffect(() => {
                 <span className={styles.languageName}>{translationLanguageName}</span>
               </div>
             )}
-            <TranslationBoxComponent translate={translate} transcript={transcript} language={translationLanguage} includeSource={includeSource} />
+            <TranslationBoxComponent translate={translate} transcript={transcript} language={translationLanguage} includeSource={includeSource} textSize={textSize} />
             <div className={styles.buttonContainer}>
               <AudioComponent locale={translationLocale} translate={translate} />
               <SourceTextToggleComponent includeSource={includeSource} onToggle={handleSourceTextToggle} />
+              <TextSizeToggleComponent textSize={textSize} onToggle={handleTextSizeToggle} />
               <StopTranslationButtonComponent onClick={handleStopTranslationButton} />
             </div>
             {/* */}

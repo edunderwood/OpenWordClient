@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from '@/styles/TranslationBox.module.css'
 
-const TranslationBoxComponent = ({ translate, transcript, language, includeSource }) => {
+const TranslationBoxComponent = ({ translate, transcript, language, includeSource, textSize = 'medium' }) => {
     const [churchProperties, setChurchProperties] = useState({
         hostLanguage: "en"
     });
@@ -47,9 +47,14 @@ const TranslationBoxComponent = ({ translate, transcript, language, includeSourc
             const translateP = document.createElement('p')
             const transcriptP = document.createElement('p')
 
+            // Apply size-specific CSS classes
+            const sizeClass = textSize === 'small' ? styles.textSmall :
+                             textSize === 'large' ? styles.textLarge :
+                             styles.textMedium;
+
             textPair.className = styles.translationTranscriptPair
-            translateP.className = styles.translatedText
-            transcriptP.className = styles.transcriptText
+            translateP.className = `${styles.translatedText} ${sizeClass}`
+            transcriptP.className = `${styles.transcriptText} ${sizeClass}`
 
             translateP.textContent = translate
             transcriptP.textContent = transcript

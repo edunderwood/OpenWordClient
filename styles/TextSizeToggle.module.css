@@ -1,0 +1,86 @@
+/* Text Size Toggle Component Styles */
+
+.textSizeButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+}
+
+.textSizeToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 12px;
+    background-color: #f0f0f0;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    user-select: none;
+    width: 56px;
+    height: 56px;
+}
+
+.textSizeToggle:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
+}
+
+.textSizeToggle:active {
+    transform: scale(0.95);
+}
+
+/* Icon styling */
+.textSizeToggle svg {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.textSizeToggle:hover svg {
+    color: #007bff;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .textSizeToggle {
+        background-color: #2a2a2a;
+    }
+
+    .textSizeToggle:hover {
+        background-color: #3a3a3a;
+    }
+
+    .textSizeToggle svg {
+        color: #fff;
+    }
+
+    .textSizeToggle:hover svg {
+        color: #4dabf7;
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .textSizeButton {
+        padding: 0;
+        margin: 0;
+    }
+
+    .textSizeToggle {
+        padding: 12px 20px;
+    }
+
+    .textSizeToggle svg {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* Accessibility - focus state */
+.textSizeToggle:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
