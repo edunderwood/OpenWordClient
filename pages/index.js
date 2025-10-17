@@ -22,7 +22,7 @@ const Home = () => {
   const router = useRouter()
 
   // Get query parameters - church key and serviceId
-  const { serviceId, church } = router.query;
+  const { serviceId, organisation, church } = router.query;
 
   const [livestream, setLivestream] = useState("OFF");
   const [languageMap, setLanguageMap] = useState([]);
@@ -45,13 +45,13 @@ const Home = () => {
   const translationRef = useRef(false);
 
 
-  const [churchWelcome, setChurchWelcome] = useState({
+  const [organisationWelcome, setOrganisationWelcome] = useState({
     greeting: "",
     messages: [],
     additionalMessage: "",
     waiting: ""
   });
-  const [churchName, setChurchName] = useState("");
+  const [organisationName, setOrganisationName] = useState("");
 
   const serverName = process.env.NEXT_PUBLIC_SERVER_NAME;
 
@@ -62,24 +62,24 @@ const Home = () => {
 
   useEffect(() => {
 
-    // Get the specific church properties from the server
+    // Get the specific organisation properties from the server
     const fetchData = async () => {
       try {
-        // Don't fetch if no church parameter
-        if (!church) {
-          console.warn('⚠️  No church parameter in URL, skipping church info fetch');
-          setChurchWelcome({
+        // Don't fetch if no organisation parameter
+        if (!organisation && !church) {
+          console.warn('⚠️  No organisation parameter in URL, skipping church info fetch');
+          setOrganisationWelcome({
             greeting: "Configuration Required",
-            messages: ["Please add your organization key to the URL.", "Example: ?church=YOUR_CHURCH_KEY"],
+            messages: ["Please add your organization key to the URL.", "Example: ?organisation=YOUR_ORGANISATION_KEY"],
             additionalMessage: "",
             waiting: "Waiting for configuration..."
           });
           return;
         }
 
-        const url = `${serverName}/church/info?church=${encodeURIComponent(church)}`;
+        const url = `${serverName}/organisation/info?organisation=${encodeURIComponent(church)}`;
 
-        console.log(`Fetching church info from: ${url}`);
+        console.log(`Fetching organisation info from: ${url}`);
 
         const response = await fetch(url)
         if (!response.ok) {
@@ -94,9 +94,9 @@ const Home = () => {
           setLanguageMap(JSON.parse(data.translationLanguages));
         }
         setDefaultServiceId(data.defaultServiceId);
-        setChurchName(data.name || data.churchName || "");
-        const churchMessages = JSON.parse(data.message);
-        setChurchWelcome({
+        setOrganisationName(data.name || data.organisationName || "");
+        const organisationMessages = JSON.parse(data.message);
+        setOrganisationWelcome({
           greeting: data.greeting,
           messages: churchMessages,
           additionalMessage: data.additionalWelcome,
@@ -104,11 +104,11 @@ const Home = () => {
         })
       } catch (error) {
         console.warn(`Error getting church info: ${error} `);
-        // If church parameter is missing, show helpful message
-        if (!church) {
-          setChurchWelcome({
+        // If organisation parameter is missing, show helpful message
+        if (!organisation && !church) {
+          setOrganisationWelcome({
             greeting: "Configuration Required",
-            messages: ["Please add your organization key to the URL.", "Example: ?church=YOUR_CHURCH_KEY"],
+            messages: ["Please add your organization key to the URL.", "Example: ?organisation=YOUR_ORGANISATION_KEY"],
             additionalMessage: "",
             waiting: "Waiting for configuration..."
           })
@@ -291,18 +291,18 @@ useEffect(() => {
       <div className={styles.container}>
         <ServiceStatusComponent serviceId={serviceCode} parentCallback={handleServiceStatusCallback} />
         <LivestreamComponent socket={socket} parentCallback={handleLivestreamCallback} />
-        <PageHeaderComponent churchName={churchName} sessionStatus={livestream} />
+        <PageHeaderComponent organisationName={organisationName} sessionStatus={livestream} />
         {!translationRef.current &&
           <div className={styles.home}>
             <div className={styles.inputBox}>
-              <LogoComponent serverName={serverName} churchKey={church} />
+              <LogoComponent serverName={serverName} organisationKey={organisation || church} />
               {/* */}
-              <WelcomeMessageComponent churchWelcome={churchWelcome} />
+              <WelcomeMessageComponent organisationWelcome={organisationWelcome} />
               {serviceReady &&
                 <LanguageButtonDropdownComponent languages={languageMap} onClick={handleStartButton} />
               }
               {!serviceReady &&
-                <WaitingMessageComponent message={churchWelcome.waiting} />
+                <WaitingMessageComponent message={organisationWelcome.waiting} />
               }
             </div>
           </div>

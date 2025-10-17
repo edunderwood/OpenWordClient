@@ -4,7 +4,7 @@ import styles from '@/styles/PageHeader.module.css';
 const PageHeaderComponent = (props) => {
     return (
         <div className={styles.pageheader}>
-            <div className={styles.textlabel}>{props.churchName || 'Open Word'}</div>
+            <div className={styles.textlabel}>{props.organisationName || 'Open Word'}</div>
             <div className={styles.sessionstatus}>
                 <div className={styles.brandtext}>Open Word</div>
                 <div className={styles.livestreamrow}>

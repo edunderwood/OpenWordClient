@@ -2,25 +2,25 @@ import React, { useEffect, useState } from "react";
 import styles from '@/styles/TranslationBox.module.css'
 
 const TranslationBoxComponent = ({ translate, transcript, language, includeSource, textSize = 'medium' }) => {
-    const [churchProperties, setChurchProperties] = useState({
+    const [organisationProperties, setOrganisationProperties] = useState({
         hostLanguage: "en"
     });
 
     // Get the Server name from environment variable
     const serverName = process.env.NEXT_PUBLIC_SERVER_NAME;
 
-    // Get the host language of the church service
+    // Get the host language of the organisation service
     useEffect(() => {
         const fetchData = async () => {
 
-            const response = await fetch(`${serverName}/church/info`)
+            const response = await fetch(`${serverName}/organisation/info`)
                 .catch((error) => {
                     console.error(`Warning: unable to get language: ${error}`);
                     return;
                 });
             const jsonResponse = await response.json();
             const data = jsonResponse.responseObject;
-            setChurchProperties({
+            setOrganisationProperties({
                 hostLanguage: data.language
             })
         };
@@ -35,7 +35,7 @@ const TranslationBoxComponent = ({ translate, transcript, language, includeSourc
         }
 
         const addTranslate = () => {
-            console.log(`Translate: ${translate}, transcript: ${transcript}, hostLang: ${churchProperties.hostLanguage}, language: ${language}`);
+            console.log(`Translate: ${translate}, transcript: ${transcript}, hostLang: ${organisationProperties.hostLanguage}, language: ${language}`);
             const div = document.getElementById('translationBox')
 
             if (!div) {

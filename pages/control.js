@@ -14,7 +14,7 @@ import styles from '../styles/Control.module.css';
 export default function ControlPanel() {
   const { user, session, loading, signOut } = useAuth();
   const router = useRouter();
-  const [churchData, setChurchData] = useState(null);
+  const [organisationData, setOrganisationData] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
   const [serviceActive, setServiceActive] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
@@ -31,14 +31,14 @@ export default function ControlPanel() {
   // Fetch church data when user is authenticated
   useEffect(() => {
     if (user && session) {
-      fetchChurchData();
+      fetchOrganisationData();
     }
   }, [user, session]);
 
-  const fetchChurchData = async () => {
+  const fetchOrganisationData = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_NAME}/api/church/profile`,
+        `${process.env.NEXT_PUBLIC_SERVER_NAME}/api/organisation/profile`,
         {
           headers: {
             'Authorization': `Bearer ${session.access_token}`
@@ -48,18 +48,18 @@ export default function ControlPanel() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Church data loaded:', data);
-        setChurchData(data.data);
+        console.log('✅ Organisation data loaded:', data);
+        setOrganisationData(data.data);
         // Generate QR code after fetching church data
         if (data.data) {
           generateQRCode(data.data.church_key, data.data.default_service_id);
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ Failed to fetch church data:', response.status, errorData);
+        console.error('❌ Failed to fetch organisation data:', response.status, errorData);
 
         if (response.status === 404) {
-          // User doesn't have a church profile yet
+          // User doesn't have an organisation profile yet
           setNoChurchProfile(true);
         } else {
           alert(`Failed to load church data: ${errorData.message || errorData.error || 'Unknown error'}\n\nStatus: ${response.status}`);
@@ -67,7 +67,7 @@ export default function ControlPanel() {
       }
     } catch (error) {
       console.error('❌ Error fetching church data:', error);
-      alert(`Error loading church data: ${error.message}\n\nPlease check that you're logged in and have a church profile.`);
+      alert(`Error loading organisation data: ${error.message}\n\nPlease check that you're logged in and have an organisation profile.`);
     } finally {
       setLoadingData(false);
     }
@@ -85,7 +85,7 @@ export default function ControlPanel() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            churchKey: churchKey,
+            organisationKey: organisationKey,
             serviceId: serviceId,
             format: 'png'
           })
@@ -116,7 +116,7 @@ export default function ControlPanel() {
 
   const handleStartService = async () => {
     try {
-      const serviceId = churchData?.default_service_id || '1234';
+      const serviceId = organisationData?.default_service_id || '1234';
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_NAME}/api/service/${serviceId}/start`,
         {
@@ -126,7 +126,7 @@ export default function ControlPanel() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            languages: churchData?.translation_languages || []
+            languages: organisationData?.translation_languages || []
           })
         }
       );
@@ -146,7 +146,7 @@ export default function ControlPanel() {
 
   const handleStopService = async () => {
     try {
-      const serviceId = churchData?.default_service_id || '1234';
+      const serviceId = organisationData?.default_service_id || '1234';
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_NAME}/api/service/${serviceId}/stop`,
         {
@@ -213,20 +213,20 @@ export default function ControlPanel() {
             <div className={styles.card}>
               <h2 className={styles.cardTitle}>Church Profile Setup Required</h2>
               <p style={{marginBottom: '20px'}}>
-                Your account doesn't have a church profile yet. To use the OpenWord translation service,
-                you need to complete your church setup.
+                Your account doesn't have an organisation profile yet. To use the OpenWord translation service,
+                you need to complete your organisation setup.
               </p>
 
               <h3 style={{fontSize: '16px', marginBottom: '12px'}}>Next Steps:</h3>
               <ol style={{lineHeight: '1.8', paddingLeft: '20px'}}>
                 <li>Contact your administrator or support team</li>
-                <li>They will create a church profile for your organization in the database</li>
+                <li>They will create an organisation profile for your organization in the database</li>
                 <li>Once setup is complete, refresh this page to access the control panel</li>
               </ol>
 
               <div style={{marginTop: '24px', padding: '16px', background: '#f7fafc', borderRadius: '8px', border: '1px solid #e2e8f0'}}>
                 <p style={{margin: '0', fontSize: '14px', color: '#4a5568'}}>
-                  <strong>For Administrators:</strong> Create a church profile using the Supabase database
+                  <strong>For Administrators:</strong> Create an organisation profile using the Supabase database
                   or the registration endpoint. See <code>MIGRATION-GUIDE-EXISTING-TABLES.md</code> for instructions.
                 </p>
               </div>
@@ -269,17 +269,17 @@ export default function ControlPanel() {
         {/* Main Content */}
         <main className={styles.main}>
           {/* Church Info Card */}
-          {churchData && (
+          {organisationData && (
             <div className={styles.card}>
               <h2 className={styles.cardTitle}>Church Information</h2>
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Name:</span>
-                  <span className={styles.infoValue}>{churchData.name}</span>
+                  <span className={styles.infoValue}>{organisationData.name}</span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Organization Key:</span>
-                  <span className={styles.infoValue} style={{fontWeight: 'bold', color: '#007bff'}}>{churchData.church_key}</span>
+                  <span className={styles.infoValue} style={{fontWeight: 'bold', color: '#007bff'}}>{organisationData.organisation_key}</span>
                   <small style={{display: 'block', marginTop: '4px', color: '#666'}}>
                     Use this key in participant URLs
                   </small>
@@ -327,11 +327,11 @@ export default function ControlPanel() {
               )}
             </div>
 
-            {serviceActive && churchData && (
+            {serviceActive && organisationData && (
               <div className={styles.activeInfo}>
                 <p>Translation service is running</p>
                 <p className={styles.clientUrl}>
-                  Participant URL: <a href={`${process.env.NEXT_PUBLIC_CLIENT_URL || window.location.origin}?church=${churchData.church_key}&serviceId=${churchData.default_service_id}`} target="_blank" rel="noopener noreferrer">
+                  Participant URL: <a href={`${process.env.NEXT_PUBLIC_CLIENT_URL || window.location.origin}?church=${organisationData.organisation_key}&serviceId=${churchData.default_service_id}`} target="_blank" rel="noopener noreferrer">
                     Open Translation View
                   </a>
                 </p>
@@ -343,7 +343,7 @@ export default function ControlPanel() {
           </div>
 
           {/* QR Code Card */}
-          {churchData && (
+          {organisationData && (
             <div className={styles.card}>
               <h2 className={styles.cardTitle}>Participant Access</h2>
 
@@ -365,20 +365,20 @@ export default function ControlPanel() {
                       className={styles.qrCodeImage}
                     />
                     <p className={styles.qrCodeInfo}>
-                      Scan to access: {churchData.name}
+                      Scan to access: {organisationData.name}
                     </p>
                     <div className={styles.qrUrlDisplay}>
                       <small>QR Code URL:</small>
                       <code>
                         {typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_CLIENT_URL || ''}
-                        ?church={churchData.church_key}&serviceId={churchData.default_service_id}
+                        ?church={organisationData.organisation_key}&serviceId={churchData.default_service_id}
                       </code>
                     </div>
                     <button
                       onClick={() => {
                         const link = document.createElement('a');
                         link.href = qrCodeUrl;
-                        link.download = `${churchData.church_key}-qr-code.png`;
+                        link.download = `${organisationData.organisation_key}-qr-code.png`;
                         link.click();
                       }}
                       className={styles.downloadButton}
@@ -388,7 +388,7 @@ export default function ControlPanel() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => generateQRCode(churchData.church_key, churchData.default_service_id)}
+                    onClick={() => generateQRCode(organisationData.organisation_key, churchData.default_service_id)}
                     className={styles.button}
                   >
                     Generate QR Code
@@ -400,13 +400,13 @@ export default function ControlPanel() {
                   <div className={styles.urlBox}>
                     <input
                       type="text"
-                      value={`${process.env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== 'undefined' ? window.location.origin : '')}?church=${churchData.church_key}&serviceId=${churchData.default_service_id}`}
+                      value={`${process.env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== 'undefined' ? window.location.origin : '')}?church=${organisationData.organisation_key}&serviceId=${churchData.default_service_id}`}
                       readOnly
                       className={styles.urlInput}
                     />
                     <button
                       onClick={() => {
-                        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}?church=${churchData.church_key}&serviceId=${churchData.default_service_id}`;
+                        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}?church=${organisationData.organisation_key}&serviceId=${churchData.default_service_id}`;
                         navigator.clipboard.writeText(url);
                         alert('URL copied to clipboard!');
                       }}
@@ -427,7 +427,7 @@ export default function ControlPanel() {
               <p className={styles.statLabel}>Active Viewers</p>
             </div>
             <div className={styles.statCard}>
-              <h3 className={styles.statValue}>{churchData?.translation_languages?.length || 0}</h3>
+              <h3 className={styles.statValue}>{organisationData?.translation_languages?.length || 0}</h3>
               <p className={styles.statLabel}>Available Languages</p>
             </div>
             <div className={styles.statCard}>

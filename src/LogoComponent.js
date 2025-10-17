@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from '@/styles/Logo.module.css'
 
 
-const LogoComponent = ({ serverName, churchKey }) => {
+const LogoComponent = ({ serverName, organisationKey }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,17 +14,17 @@ const LogoComponent = ({ serverName, churchKey }) => {
                 setError(null);
 
                 // Build URL with church parameter for multi-tenant support
-                const churchParam = churchKey || '';
+                const churchParam = organisationKey || '';
 
-                console.log(`🖼️  LogoComponent Props:`, { serverName, churchKey });
+                console.log(`🖼️  LogoComponent Props:`, { serverName, organisationKey });
 
                 if (!churchParam) {
-                    console.warn('⚠️  No church key provided to LogoComponent');
+                    console.warn('⚠️  No organisation key provided to LogoComponent');
                     setLoading(false);
                     return;
                 }
 
-                const url = `${serverName}/church/info?church=${encodeURIComponent(churchParam)}`;
+                const url = `${serverName}/organisation/info?organisation=${encodeURIComponent(churchParam)}`;
                 console.log(`🖼️  Fetching logo from: ${url}`);
 
                 const response = await fetch(url)
@@ -33,7 +33,7 @@ const LogoComponent = ({ serverName, churchKey }) => {
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    console.error('❌ Error fetching church logo:', errorData);
+                    console.error('❌ Error fetching organisation logo:', errorData);
                     setError(errorData.message || 'Failed to load logo');
                     setLoading(false);
                     return;
@@ -50,25 +50,25 @@ const LogoComponent = ({ serverName, churchKey }) => {
                     console.log(`🖼️  Logo preview: ${data.base64Logo.substring(0, 50)}...`);
                     setImageUrl(data.base64Logo);
                 } else {
-                    console.warn('⚠️  No logo found in church data');
+                    console.warn('⚠️  No logo found in organisation data');
                     console.warn('⚠️  Available fields:', Object.keys(data));
                 }
 
                 setLoading(false);
             } catch (error) {
-                console.error(`❌ Error getting church logo:`, error);
+                console.error(`❌ Error getting organisation logo:`, error);
                 setError(error.message);
                 setLoading(false);
             }
         }
 
-        if (serverName && churchKey) {
+        if (serverName && organisationKey) {
             fetchData();
         } else {
-            console.warn('⚠️  LogoComponent missing required props:', { serverName, churchKey });
+            console.warn('⚠️  LogoComponent missing required props:', { serverName, organisationKey });
             setLoading(false);
         }
-    }, [serverName, churchKey]);
+    }, [serverName, organisationKey]);
 
 
     if (loading) {

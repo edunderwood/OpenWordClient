@@ -1,15 +1,15 @@
 import styles from '@/styles/WelcomeMessage.module.css';
 
-const WelcomeMessageComponent = ({ churchWelcome }) => {
+const WelcomeMessageComponent = ({ organisationWelcome }) => {
 
     return (
         <div>
-            <p className={styles.greeting}>{churchWelcome.greeting}</p>
+            <p className={styles.greeting}>{organisationWelcome.greeting}</p>
             {/* */}
-            {churchWelcome.messages.map((str, index) => (
+            {organisationWelcome.messages.map((str, index) => (
                 <p className={styles.standard}>{str}</p>
             ))}
-            <p className={styles.welcome}>{churchWelcome.additionalMessage}</p>
+            <p className={styles.welcome}>{organisationWelcome.additionalMessage}</p>
         </div>
     )
 }

@@ -39,7 +39,7 @@ const ServiceStatusComponent = ({ serviceId, parentCallback }) => {
     const fetchData = async (serviceId) => {
         try {
 
-        const response = await (fetch(`${serverName}/church/${serviceId}/status`))
+        const response = await (fetch(`${serverName}/organisation/${serviceId}/status`))
         if (!response.ok) {
             throw new Error("Network response was not OK");
         }
