@@ -45,42 +45,64 @@ const AudioComponent = ({ locale, translate }) => {
     useEffect(() => {
         const speak = () => {
             if (audio === true && translate && translate.length > 0 && isSupported) {
+                // Validate locale
+                if (!locale || locale.length === 0) {
+                    console.warn('⚠️  Audio: No locale provided, cannot speak');
+                    return;
+                }
+
                 // Cancel any ongoing speech first
                 if (speechSynthesis.speaking) {
                     speechSynthesis.cancel()
                 }
 
-                console.log(`Speaking: "${translate}" in ${locale}`)
-                
+                console.log(`🔊 Speaking: "${translate}" in ${locale}`)
+
                 const utterance = new SpeechSynthesisUtterance(translate)
                 utterance.lang = locale
                 utterance.rate = 1.0
                 utterance.pitch = 1.0
                 utterance.volume = 1.0
-                
+
                 // Try to find a voice for the locale
-                const voice = voices.find(v => v.lang.startsWith(locale.split('-')[0]))
-                if (voice) {
-                    utterance.voice = voice
-                    console.log(`Using voice: ${voice.name}`)
-                } else {
-                    console.log(`No specific voice found for ${locale}, using default`)
+                try {
+                    const langCode = locale.split('-')[0];
+                    const voice = voices.find(v => v.lang.startsWith(langCode))
+                    if (voice) {
+                        utterance.voice = voice
+                        console.log(`✅ Using voice: ${voice.name}`)
+                    } else {
+                        console.log(`ℹ️  No specific voice found for ${locale}, using default`)
+                    }
+                } catch (error) {
+                    console.warn('⚠️  Error finding voice:', error);
                 }
-                
-                utterance.onstart = () => console.log('Speech started')
-                utterance.onend = () => console.log('Speech ended')
-                utterance.onerror = (event) => console.error('Speech error:', event.error)
-                
+
+                utterance.onstart = () => console.log('🎤 Speech started')
+                utterance.onend = () => console.log('✅ Speech ended')
+                utterance.onerror = (event) => {
+                    console.error('❌ Speech error:', event.error);
+                    // Some browsers require user interaction before allowing speech
+                    if (event.error === 'not-allowed') {
+                        console.warn('⚠️  Speech not allowed - may require user interaction with page first');
+                    }
+                }
+
                 utteranceRef.current = utterance
-                
+
                 try {
                     speechSynthesis.speak(utterance)
+                    console.log('📢 Speech utterance queued');
                 } catch (error) {
-                    console.error('Error speaking:', error)
+                    console.error('❌ Error speaking:', error)
+                }
+            } else {
+                if (audio && !translate) {
+                    console.log('⏳ Audio enabled but waiting for translation...');
                 }
             }
         }
-        
+
         speak()
     }, [translate, audio, locale, voices, isSupported])
 
